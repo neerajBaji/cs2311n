@@ -1,6 +1,7 @@
 import numpy as np
 import math
 from collections import Counter
+import pdb
 
 class KNearestNeighbor(object):
   """ a kNN classifier with L2 distance """
@@ -128,7 +129,16 @@ class KNearestNeighbor(object):
     #       and two broadcast sums.                                         #
     #########################################################################
     #pass 
-     	
+    
+    products = np.dot(X, self.X_train.transpose())
+    train_sq = np.sum(np.square(self.X_train), axis = 1)
+    test_sq = np.sum(np.square(X), axis = 1)
+    test_sq = np.reshape(test_sq, (test_sq.shape[0], 1))	
+    #test_sq = np.matrix(test_sq).transpose()	
+   # print(products.shape)
+   # print(train_sq.shape)
+   # print(test_sq.shape)	
+    dists = np.sqrt(train_sq -2*products + test_sq)
     #########################################################################
     #                         END OF YOUR CODE                              #
     #########################################################################
@@ -161,6 +171,7 @@ class KNearestNeighbor(object):
       # Hint: Look up the function numpy.argsort.                             #
       #########################################################################
       #pass
+      #pdb.set_trace()	
       closest_y = self.y_train[np.argsort(dists[i], axis=0)[:k]].tolist()
       #########################################################################
       # TODO:                                                                 #
