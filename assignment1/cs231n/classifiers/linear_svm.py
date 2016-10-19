@@ -84,11 +84,26 @@ def svm_loss_vectorized(W, X, y, reg):
   correct_classes = correct_classes.reshape((correct_classes.shape[0],1))
   correct_classes = np.tile(correct_classes,scores.shape[1])
   scores = scores - correct_classes ##subtract the score for the right class from all scores
+  correct_classes_expanded = scores == 0
   scores += 1 ## Add the delta
   scores[scores < 0 ] = 0 ## Clamp -ve values to 0 to take care of the 'max' in SVM loss
   scores[scores == 1 ] = 0 ## Remove effect of delta for correct classes
-  loss = np.sum(scores)
+  
+  incorrect_classes = scores != 0
+  non_zero_per_row = incorrect_classes.sum(1)
+  non_zero_per_row = non_zero_per_row.reshape(1, X.shape[0])
+  accumulated_input_vals = np.dot(non_zero_per_row, X)
+  print(accumulated_input_vals.shape) ## Should be [,3073]
+  pdb.set_trace()
+  dW[np.where(correct_classes_expanded == True)] = accumulated_input_vals
+  temp_scores = scores.copy()
+  temp_scores[np.where(incorrect_classes == True)] = 1
+  temp_dw = np.dot(X.T, temp_scores)
+  dW = dW + temp_dw
+  dW /= X.shape[0] 
+  dW += reg * W
 
+  loss = np.sum(scores)
   loss /= X.shape[0]
   # Add regularization to the loss.
   loss += 0.5 * reg * np.sum(W * W)
